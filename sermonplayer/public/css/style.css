@@ -1,0 +1,151 @@
+@charset 'UTF-8';
+@import url(http://fonts.googleapis.com/css?family=Hind:400,600,700);
+@import '/css/font-awesome-4.3.0/css/font-awesome.min.css';
+
+html {
+    background: #f0f0f0
+}
+
+body {
+    font-family: Hind,sans-serf
+}
+
+h1,h2,h3,h4,h5,h6 {
+    margin: 0;
+    padding: 0;
+    font-weight: 400
+}
+
+@media (min-width: 768px) {
+    div.content {
+        max-width: 30em;
+    }
+}
+
+.group:after {
+    display: block;
+    content: "";
+    clear: both;
+    height: 0;
+}
+
+.content {
+    background: 0 0;
+    padding: 0;
+}
+
+.content a {
+    text-decoration: none;
+}
+
+.content .player {
+    padding: 20px 20px 15px;
+    background: #fff;
+    margin-bottom: 20px;
+    position: relative
+}
+
+.content .player div.episodeMeta {
+    position: relative;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 10px
+}
+
+.content .player .episodeMeta img {
+    display: block;
+    width: 100%
+}
+
+.content .player .episodeMeta .overlay div.liveDate {
+    font-size: 16px;
+    margin-top: 0;
+    color: #fff;
+    margin-bottom: 0
+}
+
+.content .player .episodeMeta div.overlay {
+    background: rgba(0,0,0,.4);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px
+}
+
+.content .player .episodeMeta .overlay h2 {
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 0;
+    margin-right: 30px
+}
+
+.content .player .episodeMeta .overlay h2 {
+    color: #fff;
+    font-size: 20px
+}
+
+.content .player div.bibleRefs {
+    padding-top: 20px;
+    border-top: 1px solid #e3e3e3;
+    margin-top: 20px
+}
+
+.content .episodes, .content .moreEpisodesContainer {
+    display: block
+}
+
+.episodes>a {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: block;
+    border: 1px solid #e3e3e3;
+}
+
+.playLink {
+    background: #07C;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    border-radius: 50%;
+    float: left;
+    margin-right: 15px
+}
+
+.playLink .fa {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    color: #fff
+}
+
+.episodes>a .details {
+    width: calc(100% - 55px);
+    float: left
+}
+
+.episodes>a .details .title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    line-height: 20px
+}
+
+.episodes>a .details span {
+    font-size: 14px;
+    color: grey
+}
+
+.moreEpisodesContainer a {
+    display: block;
+    margin: 0 auto;
+    text-transform: uppercase;
+    background: #ccc;
+    color: #333;
+    font-weight: 600;
+    padding: 12px 19px 7px;
+    width: 132px;
+    border-radius: 3px;
+}
