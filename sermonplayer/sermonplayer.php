@@ -10,8 +10,8 @@ Author URI: http://www.aaronjacobson.com
 //tell wordpress to register the shortcodes
 add_shortcode("sermonplayer", "sermonplayer");
 
-require_once("/home/esllwnac/api/dbconfig.php");
-require_once("/home/esllwnac/api/repository/messageDao.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/../api/dbconfig.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/../api/repository/messageDao.php");
 
 function sermonplayer() {
     $messageId = $_REQUEST["sermon"];
