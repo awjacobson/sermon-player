@@ -20,24 +20,22 @@ function sermonplayer() {
     global $cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName;
     $dao = new MessageDao($cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName);
 
-    sermonplayer_register_scripts();
-
     if(isset($messageId)) {
-		if($messageId == "archives") {
-			$messages = $dao->GetAllMessagesForListeners();
-			$html = renderArchives($messages);
-			echo '<div class="content"><div class="episodes">' . $html . '</div></div>';
-			exit;
-		}
-		else {
-			$messages = array($dao->GetMessageById($messageId));
-			$episodes = $dao->GetLatest(4);
-			foreach ($episodes as &$message) {
-				if($message->id != $messageId) {
-					array_push($messages, $message);
-				}
-			}
-		}
+        if($messageId == "archives") {
+            $messages = $dao->GetAllMessagesForListeners();
+            $html = renderArchives($messages);
+            echo '<div class="content"><div class="episodes">' . $html . '</div></div>';
+            exit;
+        }
+        else {
+            $messages = array($dao->GetMessageById($messageId));
+            $episodes = $dao->GetLatest(4);
+            foreach ($episodes as &$message) {
+                if($message->id != $messageId) {
+                    array_push($messages, $message);
+                }
+            }
+        }
     }
     else {
         $messages = $dao->GetLatest(4);
@@ -210,28 +208,28 @@ HTML;
 }
 
 function renderArchives($messages) {
-	$html = "";
-	$year = "";
-	foreach ($messages as &$message) {
-		$messageYear = date("Y",strtotime($message->date));
-		if($year != $messageYear) {
-			if($year != "") {
-				$html .= "</details>";
-			}
-			$html .= "<details><summary>" . $messageYear . "</summary>";
-			$year = $messageYear;
-		}
-		$html .= renderArchive($message);
+    $html = "";
+    $year = "";
+    foreach ($messages as &$message) {
+        $messageYear = date("Y",strtotime($message->date));
+        if($year != $messageYear) {
+            if($year != "") {
+                $html .= "</details>";
+            }
+            $html .= "<details><summary>" . $messageYear . "</summary>";
+            $year = $messageYear;
+        }
+        $html .= renderArchive($message);
     }
-	$html .= "</details>";
-	return $html;
+    $html .= "</details>";
+    return $html;
 }
 
 function renderArchive($message) {
     $messageTitle = htmlspecialchars($message->title,ENT_COMPAT);
     $messageDate = date("F j, Y",strtotime($message->date));
     $messageService = htmlspecialchars($message->service,ENT_COMPAT);
-	$messageSpeaker = htmlspecialchars($message->speaker,ENT_COMPAT);
+    $messageSpeaker = htmlspecialchars($message->speaker,ENT_COMPAT);
     $sermonUrl = "http://www.cornerstonejeffcity.org/listen/?sermon=" . $message->id;
     $html=<<<HTML
 <a class="group" href="$sermonUrl">
