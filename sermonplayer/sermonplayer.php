@@ -2,13 +2,14 @@
 /*
 Plugin Name: Sermon Player
 Description: Renders a page for listening to sermons.
-Version: 1.0.4
+Version: 1.0.5
 Author: Aaron Jacobson
 Author URI: http://www.aaronjacobson.com
 */
 
 //tell wordpress to register the shortcodes
 add_shortcode("sermonplayer", "sermonplayer");
+add_action('wp_enqueue_scripts', 'sermonplayer_register_scripts');
 
 require_once($_SERVER['DOCUMENT_ROOT']."/../api/dbconfig.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/../api/repository/messageDao.php");
@@ -18,20 +19,30 @@ function sermonplayer() {
 
     global $cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName;
     $dao = new MessageDao($cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName);
+
+    sermonplayer_register_scripts();
+
     if(isset($messageId)) {
-        $messages = array($dao->GetMessageById($messageId));
-        $episodes = $dao->GetLatest(4);
-        foreach ($episodes as &$message) {
-            if($message->id != $messageId) {
-                array_push($messages, $message);
-            }
-        }
+		if($messageId == "archives") {
+			$messages = $dao->GetAllMessagesForListeners();
+			$html = renderArchives($messages);
+			echo '<div class="content"><div class="episodes">' . $html . '</div></div>';
+			exit;
+		}
+		else {
+			$messages = array($dao->GetMessageById($messageId));
+			$episodes = $dao->GetLatest(4);
+			foreach ($episodes as &$message) {
+				if($message->id != $messageId) {
+					array_push($messages, $message);
+				}
+			}
+		}
     }
     else {
         $messages = $dao->GetLatest(4);
     }
 
-    sermonplayer_register_scripts();
     $html = renderContent($messages);
     echo $html;
 }
@@ -192,6 +203,42 @@ function renderEpisode($message) {
 	<div class="details">
 		<div class="title">$messageTitle</div>
 		<span>$messageDate - $messageService</span>
+	</div>
+</a>
+HTML;
+    return $html;
+}
+
+function renderArchives($messages) {
+	$html = "";
+	$year = "";
+	foreach ($messages as &$message) {
+		$messageYear = date("Y",strtotime($message->date));
+		if($year != $messageYear) {
+			if($year != "") {
+				$html .= "</details>";
+			}
+			$html .= "<details><summary>" . $messageYear . "</summary>";
+			$year = $messageYear;
+		}
+		$html .= renderArchive($message);
+    }
+	$html .= "</details>";
+	return $html;
+}
+
+function renderArchive($message) {
+    $messageTitle = htmlspecialchars($message->title,ENT_COMPAT);
+    $messageDate = date("F j, Y",strtotime($message->date));
+    $messageService = htmlspecialchars($message->service,ENT_COMPAT);
+	$messageSpeaker = htmlspecialchars($message->speaker,ENT_COMPAT);
+    $sermonUrl = "http://www.cornerstonejeffcity.org/listen/?sermon=" . $message->id;
+    $html=<<<HTML
+<a class="group" href="$sermonUrl">
+	<div class="playLink"><i class="fa fa-play"></i></div>
+	<div class="details">
+		<div class="title">$messageTitle</div>
+		<span>$messageDate - $messageService - $messageSpeaker</span>
 	</div>
 </a>
 HTML;

@@ -95,7 +95,7 @@ h1,h2,h3,h4,h5,h6 {
     display: block
 }
 
-.episodes>a {
+.episodes a {
     background: #fff;
     padding: 15px;
     margin-bottom: 10px;
@@ -121,19 +121,19 @@ h1,h2,h3,h4,h5,h6 {
     color: #fff
 }
 
-.episodes>a .details {
+.episodes a .details {
     width: calc(100% - 55px);
     float: left
 }
 
-.episodes>a .details .title {
+.episodes a .details .title {
     font-size: 16px;
     font-weight: 600;
     color: #000;
     line-height: 20px
 }
 
-.episodes>a .details span {
+.episodes a .details span {
     font-size: 14px;
     color: grey
 }
