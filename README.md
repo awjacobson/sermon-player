@@ -17,5 +17,5 @@ The bible references link to [Bible Study Tools](http://www.biblestudytools.com)
 
 ## 6. Social Media
 ## 6.1 Facebook Sharing
-![Web Sharing](https://developers.facebook.com/docs/sharing/web)
-![Share Button](https://developers.facebook.com/docs/plugins/share-button/)
+[Web Sharing](https://developers.facebook.com/docs/sharing/web)
+[Share Button](https://developers.facebook.com/docs/plugins/share-button/)
