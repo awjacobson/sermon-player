@@ -85,20 +85,19 @@ h1,h2,h3,h4,h5,h6 {
     font-size: 20px
 }
 
-.content .player div#links {
+.content .player div.bibleRefs {
     overflow: auto;
     border-top: 1px solid #e3e3e3;
     margin-top: 1em;
     padding-top: 1em
 }
 
-.content .player div.bibleRefs {
-    float: left
-}
-
-.content .player div.fb-share-button {
-    float: right
-}
+.content .player div.fb-like {
+    display: inline-block;
+    overflow: auto;
+    border-top: 1px solid #e3e3e3;
+    margin-top: 1em;
+    padding-top: 1em}
 
 .content .episodes, .content .moreEpisodesContainer {
     display: block

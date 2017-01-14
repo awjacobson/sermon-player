@@ -110,6 +110,7 @@ HTML;
 }
 
 function sermonplayer_register_scripts() {
+    wp_enqueue_script('facebook-jssdk', '//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8');
     wp_enqueue_script('jplayer-script', plugin_dir_url( __FILE__ ) . 'public/js/jquery.jplayer.min.js');
     wp_enqueue_style('sermon-player-style', plugin_dir_url( __FILE__ ) . 'public/css/style.css');
     wp_enqueue_style('jplayer-style', plugin_dir_url( __FILE__ ) . 'public/css/jplayer.min.css');
@@ -123,13 +124,6 @@ function renderContent($messages) {
     $message = $messages[0];
     $html=<<<HTML
 <div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
 $script
 <div class="content">
 $player
@@ -139,9 +133,29 @@ HTML;
     return $html;
 }
 
+function sermonplayer_renderFacebookLikeButton($messageId) {
+    $html=<<<HTML
+<div class="fb-like"
+    data-href="http://www.cornerstonejeffcity.org/listen/?sermon=$messageId"
+    data-layout="button_count"
+    data-action="like"
+    data-size="large"
+    data-show-faces="false"
+    data-share="true">
+</div>
+HTML;
+    return $html;
+}
+
 function sermonplayer_renderFacebookShareButton($messageId) {
     $html=<<<HTML
-<div class="fb-share-button" data-href="http://www.cornerstonejeffcity.org/listen/?sermon=$messageId" data-layout="button" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.cornerstonejeffcity.org%2Flisten%2F%3Fsermon%3D$messageId&amp;src=sdkpreparse">Share</a></div>
+<div class="fb-share-button"
+    data-href="http://www.cornerstonejeffcity.org/listen/?sermon=$messageId"
+    data-layout="button"
+    data-size="large"
+    data-mobile-iframe="true">
+    <a class="fb-xfbml-parse-ignore"target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.cornerstonejeffcity.org%2Flisten%2F%3Fsermon%3D$messageId&amp;src=sdkpreparse">Share</a>
+</div>
 HTML;
     return $html;
 }
@@ -182,7 +196,7 @@ function renderPlayer($message) {
     $messageService = htmlspecialchars($message->service,ENT_COMPAT);
     $description = renderDescription($message);
     $bibleRefs = renderBibleRefs($message);
-    $facebookShareButton = sermonplayer_renderFacebookShareButton($message->id);
+    $facebookButton = sermonplayer_renderFacebookLikeButton($message->id);
 
     $html=<<<HTML
 <div class="player">
@@ -228,9 +242,8 @@ function renderPlayer($message) {
 		</div>
 	</div>
 	$description
-    <div id="links">
 	$bibleRefs
-	$facebookShareButton
+	$facebookButton
     </div>
 </div>
 HTML;
