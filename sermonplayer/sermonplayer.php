@@ -5,27 +5,60 @@ Description: Renders a page for listening to sermons.
 Version: 1.0.5
 Author: Aaron Jacobson
 Author URI: http://www.aaronjacobson.com
+License:     GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+
+Copyright 2016 Aaron Jacobson (email : awjacobson@aaronjacobson.com)
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License, version 2, as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-//tell wordpress to register the shortcodes
-add_shortcode("sermonplayer", "sermonplayer");
-add_action('wp_enqueue_scripts', 'sermonplayer_register_scripts');
+$sermonplayer_messages = null;
 
-require_once($_SERVER['DOCUMENT_ROOT']."/../api/dbconfig.php");
-require_once($_SERVER['DOCUMENT_ROOT']."/../api/repository/messageDao.php");
+if(substr($_SERVER['REQUEST_URI'], 0, 8) === '/listen/')
+{
+    require_once($_SERVER['DOCUMENT_ROOT']."/../api/dbconfig.php");
+    require_once($_SERVER['DOCUMENT_ROOT']."/../api/repository/messageDao.php");
+    $sermonplayer_messages = sermonplayer_getmessages($_REQUEST["sermon"]);
+
+    add_shortcode("sermonplayer", "sermonplayer");
+    add_filter('language_attributes', 'sermonplayer_doctype_opengraph');
+    add_action('wp_enqueue_scripts', 'sermonplayer_register_scripts');
+    add_action('wp_head','sermonplayer_build_head');
+}
 
 function sermonplayer() {
+	global $sermonplayer_messages;
     $messageId = $_REQUEST["sermon"];
 
+    if(isset($messageId) && $messageId === "archives") {
+        $html = '<div class="content"><div class="episodes">' . renderArchives($sermonplayer_messages) . '</div></div>';
+    }
+    else {
+        $html = renderContent($sermonplayer_messages);
+    }
+
+    echo $html;
+}
+
+function sermonplayer_getmessages($messageId) {
     global $cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName;
     $dao = new MessageDao($cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName);
 
     if(isset($messageId)) {
         if($messageId == "archives") {
             $messages = $dao->GetAllMessagesForListeners();
-            $html = renderArchives($messages);
-            echo '<div class="content"><div class="episodes">' . $html . '</div></div>';
-            exit;
         }
         else {
             $messages = array($dao->GetMessageById($messageId));
@@ -40,8 +73,39 @@ function sermonplayer() {
     else {
         $messages = $dao->GetLatest(4);
     }
+    return $messages;
+}
 
-    $html = renderContent($messages);
+function sermonplayer_doctype_opengraph($output) {
+    return $output . '
+    xmlns:og="http://opengraphprotocol.org/schema/"
+    xmlns:fb="http://www.facebook.com/2008/fbml"';
+}
+
+/**
+ * Write to the head section.
+ */
+function sermonplayer_build_head() {
+    global $sermonplayer_messages;
+
+    if(!isset($sermonplayer_messages)) {
+        return;
+    }
+    $message = $sermonplayer_messages[0];
+    $url = "http://www.cornerstonejeffcity.org/listen/?sermon=" . $message->id;
+    $messageDate = date("F j, Y",strtotime($message->date));
+    $title = htmlspecialchars($message->title,ENT_COMPAT);
+    $description = htmlspecialchars($message->description,ENT_COMPAT);
+    $image = plugin_dir_url( __FILE__ ) . "public/images/brian_thumbnail.jpg";
+    $html = <<<HTML
+<meta property="og:url" content="$url"/>
+<meta property="og:type" content="article" />
+<meta property="og:title" content="$title" />
+<meta property="og:description" content="$messageDate - $description" />
+<meta property="og:image" content="$image" />
+<meta property="og:image:width" content="200" />
+<meta property="og:image:height" content="200" />
+HTML;
     echo $html;
 }
 
@@ -58,11 +122,26 @@ function renderContent($messages) {
     $episodes = renderEpisodes(array_slice($messages, 1, 3));
     $message = $messages[0];
     $html=<<<HTML
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 $script
 <div class="content">
 $player
 $episodes
 </div>
+HTML;
+    return $html;
+}
+
+function sermonplayer_renderFacebookShareButton($messageId) {
+    $html=<<<HTML
+<div class="fb-share-button" data-href="http://www.cornerstonejeffcity.org/listen/?sermon=$messageId" data-layout="button" data-size="large" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.cornerstonejeffcity.org%2Flisten%2F%3Fsermon%3D$messageId&amp;src=sdkpreparse">Share</a></div>
 HTML;
     return $html;
 }
@@ -103,6 +182,7 @@ function renderPlayer($message) {
     $messageService = htmlspecialchars($message->service,ENT_COMPAT);
     $description = renderDescription($message);
     $bibleRefs = renderBibleRefs($message);
+    $facebookShareButton = sermonplayer_renderFacebookShareButton($message->id);
 
     $html=<<<HTML
 <div class="player">
@@ -148,7 +228,10 @@ function renderPlayer($message) {
 		</div>
 	</div>
 	$description
+    <div id="links">
 	$bibleRefs
+	$facebookShareButton
+    </div>
 </div>
 HTML;
     return $html;

@@ -14,3 +14,8 @@ The plugin makes use of the JQuery HTML5 audio/video library known as [jPlayer](
 
 ## 5. Bible References
 The bible references link to [Bible Study Tools](http://www.biblestudytools.com). It specifically links to the NKJV of the bible.
+
+## 6. Social Media
+## 6.1 Facebook Sharing
+![Web Sharing](https://developers.facebook.com/docs/sharing/web)
+![Share Button](https://developers.facebook.com/docs/plugins/share-button/)
