@@ -96,7 +96,7 @@ function sermonplayer_build_head() {
     $messageDate = date("F j, Y",strtotime($message->date));
     $title = htmlspecialchars($message->title,ENT_COMPAT);
     $description = htmlspecialchars($message->description,ENT_COMPAT);
-    $image = plugin_dir_url( __FILE__ ) . "public/images/brian_thumbnail.jpg";
+    $image = sermonplayer_getImageUrl($message, true);
     $html = <<<HTML
 <meta property="og:url" content="$url"/>
 <meta property="og:type" content="article" />
@@ -188,9 +188,28 @@ HTML;
     return $html;
 }
 
+    $imageUrl = plugin_dir_url( __FILE__ ) . "public/images/";
+    if($message->speaker == "Brian Credille") {
+        $imageUrl .= "brian_credille";
+    }
+    else if($message->speaker == "Andy Vecellio") {
+        $imageUrl .= "andy_vecellio";
+    }
+    else if($message->speaker == "Mark Ritchey") {
+        $imageUrl .= "mark_ritchey";
+    }
+    else {
+        $imageUrl .= "cornerstone";
+    }
+    if(isset($isThumbnail) && $isThumbnail == true) {
+        $imageUrl .= "_thumbnail";
+    }
+    return $imageUrl.".jpg";
+}
+
 function renderPlayer($message) {
-    $imageUrl = WP_PLUGIN_URL."/sermonplayer/public/images/brian.jpg";
-    $imageAlt = "Brian Credille";
+    $imageUrl = sermonplayer_getImageUrl($message);
+    $imageAlt = $message->speaker;
     $messageTitle = htmlspecialchars($message->title,ENT_COMPAT);
     $messageDate = date("F j, Y",strtotime($message->date));
     $messageService = htmlspecialchars($message->service,ENT_COMPAT);
