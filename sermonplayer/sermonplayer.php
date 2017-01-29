@@ -279,6 +279,9 @@ HTML;
 }
 
 function renderBibleRefs($message) {
+    if(!isset($message) || empty($message->reference)) {
+        return "";
+    }
     $messageBibleRefsUrl = "http://www.biblestudytools.com/search/?q=" . urlencode($message->reference) . "&t=nkjv";
     $messageBibleRefsText = htmlspecialchars($message->reference,ENT_COMPAT);
     $html=<<<HTML
