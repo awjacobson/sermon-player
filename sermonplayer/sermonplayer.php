@@ -188,6 +188,7 @@ HTML;
     return $html;
 }
 
+function sermonplayer_getImageUrl($message, $isThumbnail = null) {
     $imageUrl = plugin_dir_url( __FILE__ ) . "public/images/";
     if($message->speaker == "Brian Credille") {
         $imageUrl .= "brian_credille";
