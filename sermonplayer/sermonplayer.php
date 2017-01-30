@@ -199,6 +199,9 @@ function sermonplayer_getImageUrl($message, $isThumbnail = null) {
     else if($message->speaker == "Mark Ritchey") {
         $imageUrl .= "mark_ritchey";
     }
+    else if($message->speaker == "Bill Campbell") {
+        $imageUrl .= "bill_campbell";
+    }
     else {
         $imageUrl .= "cornerstone";
     }
