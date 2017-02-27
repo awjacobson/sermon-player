@@ -24,6 +24,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+// if this file is called directly, abort
+if(!defined('WPINC')) {
+    die;
+}
+
+include_once('metabox.php');
+$sermonplayer_metabox = new SermonPlayerMetabox();
 $sermonplayer_messages = null;
 
 if(substr($_SERVER['REQUEST_URI'], 0, 8) === '/listen/')
@@ -51,6 +58,28 @@ function sermonplayer() {
 
     echo $html;
 }
+
+/**
+ * https://codex.wordpress.org/Function_Reference/register_post_type
+ */
+function sermonplayer_register_post_type() {
+    global $sermonplayer_metabox;
+    register_post_type("sermon", [
+        "labels" => [
+            "name" => __("Sermons"),
+            "singular_name" => __("Sermon"),
+            "description" => "",
+        ],
+        "public" => true,
+        "menu_icon" => 'dashicons-controls-volumeon',
+        "has_archive" => true,
+        "rewrite" => [
+            "slug" => "listen"
+        ],
+        'register_meta_box_cb' => array($sermonplayer_metabox, 'register')
+    ]);
+}
+add_action("init", "sermonplayer_register_post_type");
 
 function sermonplayer_getmessages($messageId) {
     global $cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName;
@@ -110,21 +139,17 @@ HTML;
 }
 
 function sermonplayer_register_scripts() {
-    wp_enqueue_script('facebook-jssdk', '//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8');
-    wp_enqueue_script('jplayer-script', plugin_dir_url( __FILE__ ) . 'public/js/jquery.jplayer.min.js');
+    wp_enqueue_script('facebook-jssdk', '//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8', null, false, false);
     wp_enqueue_style('sermon-player-style', plugin_dir_url( __FILE__ ) . 'public/css/style.css');
-    wp_enqueue_style('jplayer-style', plugin_dir_url( __FILE__ ) . 'public/css/jplayer.min.css');
 }
 
 function renderContent($messages) {
     $message = $messages[0];
-    $script = renderScript($message);
     $player = renderPlayer($message);
     $episodes = renderEpisodes(array_slice($messages, 1, 3));
     $message = $messages[0];
     $html=<<<HTML
 <div id="fb-root"></div>
-$script
 <div class="content">
 $player
 $episodes
@@ -156,34 +181,6 @@ function sermonplayer_renderFacebookShareButton($messageId) {
     data-mobile-iframe="true">
     <a class="fb-xfbml-parse-ignore"target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.cornerstonejeffcity.org%2Flisten%2F%3Fsermon%3D$messageId&amp;src=sdkpreparse">Share</a>
 </div>
-HTML;
-    return $html;
-}
-
-function renderScript($message) {
-    $messageFile = "http://www.cornerstonejeffcity.org/messages/".$message->file;
-    $html=<<<HTML
-<script type="text/javascript">
-	jQuery(document).ready(function($){
-		$("#jquery_jplayer_1").jPlayer({
-			ready: function (event) {
-				var plyr = $(this);
-				plyr.jPlayer("setMedia", {
-					mp3: "$messageFile"
-				});
-			},
-			cssSelectorAncestor: "#jp_container_1",
-			swfPath: "/js",
-			supplied: "mp3",
-			useStateClassSkin: true,
-			autoBlur: false,
-			smoothPlayBar: true,
-			keyEnabled: true,
-			remainingDuration: true,
-			toggleDuration: true
-		});
-	});
-</script>
 HTML;
     return $html;
 }
@@ -220,7 +217,13 @@ function renderPlayer($message) {
     $description = renderDescription($message);
     $bibleRefs = renderBibleRefs($message);
     $facebookButton = sermonplayer_renderFacebookLikeButton($message->id);
-
+    $player_attr = array(
+        'src' => "http://www.cornerstonejeffcity.org/messages/".$message->file,
+        'loop' => '',
+        'autoplay' => '',
+        'preload' => 'none'
+    );
+    $player = wp_audio_shortcode($player_attr);
     $html=<<<HTML
 <div class="player">
 	<div class="episodeMeta">
@@ -230,40 +233,7 @@ function renderPlayer($message) {
 			<div class="liveDate">$messageDate - $messageService</div>
 		</div>
 	</div>
-	<div id="jquery_jplayer_1" class="jp-jplayer"></div>
-	<div id="jp_container_1" class="jp-audio">
-		<div class="jp-type-single">
-			<div class="jp-gui jp-interface">
-				<ul class="jp-controls">
-					<svg class="jp-play">
-						<polygon points="0,0 18,10 0,20"  />
-					</svg>
-					<svg class="jp-pause">
-						<line x1="4" y1="2" x2="4" y2="18" />
-						<line x1="14" y1="2" x2="14" y2="18" />
-					</svg>
-				</ul>
-				<div class="jp-progress">
-					<div class="jp-seek-bar">
-						<div class="jp-play-bar"></div>
-					</div>
-				</div>
-				<div class="jp-time-holder">
-					<div class="jp-current-time"></div>
-				</div>
-				<div class="jp-time-holder">
-					<div class="jp-total-time"></div>
-				</div>
-				<div class="jp-volume-bar">
-					<div class="jp-volume-bar-value"></div>
-				</div>
-				<div class="jp-no-solution">
-					<span>Update Required</span>
-					To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
-				</div>
-			</div>
-		</div>
-	</div>
+    $player
 	$description
 	$bibleRefs
 	$facebookButton
