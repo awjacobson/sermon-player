@@ -10,6 +10,8 @@ A WordPress plugin for displaying and playing sermon audio files.
 The sermon player look and feel was originally based on the audio player found at [oneplace.com](http://www.oneplace.com/ministries/love-worth-finding/).
 
 ## 4. jPlayer
+NOTE:February 24, 2017 - Changed from jPlayer to the built in WordPress audio player due to a WP upgrade rendering jPlayer uncompatible.
+
 The plugin makes use of the JQuery HTML5 audio/video library known as [jPlayer](http://jplayer.org/). The jPlayer library version ??? is included with the sermon player plugin as a minified JavaScript file.
 
 ## 5. Bible References
