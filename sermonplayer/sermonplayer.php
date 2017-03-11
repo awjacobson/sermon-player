@@ -80,6 +80,7 @@ function sermonplayer_register_post_type() {
     ]);
 }
 add_action("init", "sermonplayer_register_post_type");
+add_action('save_post', array($sermonplayer_metabox, 'save_post'));
 
 function sermonplayer_getmessages($messageId) {
     global $cornerstone_dbHost, $cornerstone_dbUserLogin, $cornerstone_dbPassword, $cornerstone_dbName;
